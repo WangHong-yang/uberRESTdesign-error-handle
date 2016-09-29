@@ -7,6 +7,8 @@ var express = require('express');
 var router = express.Router();
 
 var Passenger = require('../app/models/passenger');
+var CEC = require('../scripts/commonErrorControl')
+var PassengerEC = require('../scripts/passengerErrorControl')
 
 router.route('/passengers') 
     /**
@@ -40,40 +42,16 @@ router.route('/passengers')
      * @throws Mongoose Database Error (500 Status Code)
      */
     .post(function(req, res){
-        if(typeof req.body.firstName === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "firstName"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.lastName === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "lastName"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.username === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "username"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.emailAddress === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "emailAddress"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.password === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "password"), "statusCode" : "422"});
-            return;
-        }
-
-        var passenger = new Passenger();
-        passenger.firstName = req.body.firstName;
-        passenger.lastName = req.body.lastName;
-        passenger.dateOfBirth = req.body.dateOfBirth;
-        passenger.username = req.body.username;
-        passenger.emailAddress = req.body.emailAddress;
-        passenger.password = req.body.password;
-        passenger.addressLine1 = req.body.addressLine1;
-        passenger.addressLine2 = req.body.addressLine2;
-        passenger.city = req.body.city;
-        passenger.state = req.body.state;
-        passenger.zip = req.body.zip;
-        passenger.phoneNumber = req.body.phoneNumber;
+        var passenger = new Passenger(req.body);
+        /* Error Handle start */
+        CEC.throw_empty_request_body(res, req.body);
+        PassengerEC.throw_missing_passenger_attribute(res, req.body);
+        CEC.throw_id_provided(res, req.body);
+        PassengerEC.throw_wrong_passengerattribute_type(res, req.body);
+        PassengerEC.throw_invalid_passenger_attribute_value(res, req.body);
+        PassengerEC.throw_duplicate_passenger_attribute_value(res, req.body, Passenger);
+        PassengerEC.throw_invalid_passenger_attribute_key(res, req.body, Passenger);
+        /* Error Handle end */
 
         passenger.save(function(err){
             if(err){
@@ -97,7 +75,8 @@ router.route('/passengers/:passenger_id')
     .get(function(req, res){
         Passenger.findById(req.params.passenger_id, function(err, passenger){
             if(err){
-                res.status(500).send(err);
+                CEC.throw_id_not_found(res, err);
+                //res.status(500).send(err);
             }else{
                 res.json(passenger);
             }
@@ -120,43 +99,14 @@ router.route('/passengers/:passenger_id')
      * @throws Mongoose Database Error (500 Status Code)
      */
     .patch(function(req, res){
-        if(typeof req.body.firstName === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "firstName"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.lastName === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "lastName"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.username === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "username"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.emailAddress === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "emailAddress"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.password === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "password"), "statusCode" : "422"});
-            return;
-        }
-
         Passenger.findById(req.params.passenger_id, function(err, passenger){
             if(err){
-                res.status(500).send(err);
+                CEC.throw_id_not_found(res, err);
+                //res.status(500).send(err);
             }else{
-                passenger.firstName = req.body.firstName;
-                passenger.lastName = req.body.lastName;
-                passenger.dateOfBirth = req.body.dateOfBirth;
-                passenger.username = req.body.username;
-                passenger.emailAddress = req.body.emailAddress;
-                passenger.password = req.body.password;
-                passenger.addressLine1 = req.body.addressLine1;
-                passenger.addressLine2 = req.body.addressLine2;
-                passenger.city = req.body.city;
-                passenger.state = req.body.state;
-                passenger.zip = req.body.zip;
-                passenger.phoneNumber = req.body.phoneNumber;
+                for (var attribute in req.body) {
+                    passenger[attribute] = req.body[attribute];
+                }
 
                 passenger.save(function(err){
                     if(err){
@@ -178,7 +128,8 @@ router.route('/passengers/:passenger_id')
             _id : req.params.passenger_id
         }, function(err, passenger){
             if(err){
-                res.status(500).send(err);
+                //res.status(500).send(err);
+                CEC.throw_id_not_found(res, err);
             }else{
                 res.json({"message" : "Passenger Deleted"});
             }

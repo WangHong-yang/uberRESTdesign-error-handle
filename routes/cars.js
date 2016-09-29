@@ -32,9 +32,9 @@ router.route('/cars')
      * @throws Mongoose Database Error (500 Status Code)
      */
     .post(function(req, res){
-        var car = new Car();
-        car.license = req.body.license;
-        car.driverID = req.body.driverID;
+        var car = new Car(req.body);
+        // car.license = req.body.license;
+        // car.driverID = req.body.driverID;
         /* Error Handle start */
         CEC.throw_empty_request_body(res, req.body);
         CarEC.throw_missing_car_attribute(res, req.body);
@@ -42,6 +42,7 @@ router.route('/cars')
         CarEC.throw_wrong_car_attribute_type(res, req.body);
         CarEC.throw_invalid_car_attribute_value(res, req.body);
         CarEC.throw_duplicate_car_attribute_value(res, req.body, Car);
+        CarEC.throw_invalid_car_attribute_key(res, req.body, Car);
         /* Error Handle end */
         car.save(function(err){
             if(err){
@@ -81,9 +82,13 @@ router.route('/cars/:car_id')
         Car.findById(req.params.car_id, function(err, car){
             CEC.throw_id_provided(res, req.body);
             if(err){
-                res.status(500).send(err);
+                //res.status(500).send(err);
+                CEC.throw_id_not_found(res, err);
+                CarEC.throw_invalid_car_attribute_key(res, req.body, Car);
             }else{
-                car.license = req.body.license;
+                for (var attribute in req.body) {
+                    car[attribute] = req.body[attribute];
+                }
                 car.save(function(err){
                     if(err){
                         res.status(500).send(err);
@@ -104,7 +109,8 @@ router.route('/cars/:car_id')
             _id : req.params.car_id
         }, function(err, car){
             if(err){
-                res.status(500).send(err);
+                //res.status(500).send(err);
+                CEC.throw_id_not_found(res, err);
             }else{
                 res.json({"message" : "Car Deleted"});
             }

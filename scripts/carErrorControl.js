@@ -58,7 +58,6 @@ function INVALID_CAR_ATTRIBUTE_VALUE(res, reqBody) {
  */
 function DUPLICATE_CAR_ATTRIBUTE_VALUE(res, reqBody, Car) {
     Car.find(function(err, cars) {
-        // console.log(cars);
         var carObj = cars.filter(function(element) {
             return element.license == reqBody.license;
         })[0];
@@ -73,6 +72,25 @@ function DUPLICATE_CAR_ATTRIBUTE_VALUE(res, reqBody, Car) {
     })
 }
 
+/* Invalid attribute key
+ * - Attribute Key is not invalid (not defined in database)
+ */
+function INVALID_CAR_ATTRIBUTE_KEY(res, reqBody, Car) {
+    var car_attribute_list = ["year", "maker", "model", "doorNum", "passNum", "license", "driverID", "insurance"];
+    Car.find(function(err, cars) {
+        for (var attribute in reqBody) {
+            if(car_attribute_list.indexOf(attribute) === -1) {
+                res.status(400).json({
+                    "errorCode": 2005,
+                    "errorMsg": "invalid car attribute key",
+                    "statusCode": 400,
+                    "statusTxt": "Bad Request"
+                })
+            }
+        }
+    })
+}
+
 /* contain invalid property name */
 // function 
 
@@ -80,5 +98,6 @@ module.exports = {
     throw_missing_car_attribute: MISSING_CAR_ATTRIBUTE,
     throw_wrong_car_attribute_type: WRONG_CAR_ATTRIBUTE_TYPE,
     throw_invalid_car_attribute_value: INVALID_CAR_ATTRIBUTE_VALUE,
-    throw_duplicate_car_attribute_value: DUPLICATE_CAR_ATTRIBUTE_VALUE
+    throw_duplicate_car_attribute_value: DUPLICATE_CAR_ATTRIBUTE_VALUE,
+    throw_invalid_car_attribute_key: INVALID_CAR_ATTRIBUTE_KEY
 }

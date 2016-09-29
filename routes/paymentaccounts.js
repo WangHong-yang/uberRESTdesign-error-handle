@@ -7,6 +7,8 @@ var express = require('express');
 var router = express.Router();
 
 var PaymentAccount = require('../app/models/paymentaccount');
+var CEC = require('../scripts/commonErrorControl')
+var PaEC = require('../scripts/paymentAccountErrorControl')
 
 router.route('/paymentaccounts') 
     /**
@@ -34,33 +36,16 @@ router.route('/paymentaccounts')
      * @throws Mongoose Database Error (500 Status Code)
      */
     .post(function(req, res){
-        if(typeof req.body.accountType === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "accountType"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.accountNumber === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "accountNumber"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.expirationDate === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "expirationDate"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.nameOnAccount === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "nameOnAccount"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.bank === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "bank"), "statusCode" : "422"});
-            return;
-        }
-
-        var paymentAccount = new PaymentAccount();
-        paymentAccount.accountType = req.body.accountType;
-        paymentAccount.accountNumber = req.body.accountNumber;
-        paymentAccount.expirationDate = req.body.expirationDate;
-        paymentAccount.nameOnAccount = req.body.nameOnAccount;
-        paymentAccount.bank = req.body.bank;
+        var paymentAccount = new PaymentAccount(req.body);
+        /* Error Handle start */
+        CEC.throw_empty_request_body(res, req.body);
+        PaEC.throw_missing_pa_attribute(res, req.body);
+        CEC.throw_id_provided(res, req.body);
+        PaEC.throw_wrong_pa_attribute_type(res, req.body);
+        PaEC.throw_invalid_pa_attribute_value(res, req.body);
+        PaEC.throw_duplicate_pa_attribute_value(res, req.body, PaymentAccount);
+        PaEC.throw_invalid_pa_attribute_key(res, req.body, PaymentAccount);
+        /* Error Handle end */
 
         paymentAccount.save(function(err){
             if(err){

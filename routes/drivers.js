@@ -7,6 +7,8 @@ var express = require('express');
 var router = express.Router();
 
 var Driver = require('../app/models/driver');
+var CEC = require('../scripts/commonErrorControl')
+var DriverEC = require('../scripts/driverErrorControl')
 
 router.route('/drivers') 
     /**
@@ -41,41 +43,16 @@ router.route('/drivers')
      * @throws Mongoose Database Error (500 Status Code)
      */
     .post(function(req, res){
-        if(typeof req.body.firstName === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "firstName"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.lastName === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "lastName"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.username === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "username"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.emailAddress === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "emailAddress"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.password === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "password"), "statusCode" : "422"});
-            return;
-        }
-
-        var driver = new Driver();
-        driver.firstName = req.body.firstName;
-        driver.lastName = req.body.lastName;
-        driver.dateOfBirth = req.body.dateOfBirth;
-        driver.licenseType = req.body.licenseType;
-        driver.username = req.body.username;
-        driver.emailAddress = req.body.emailAddress;
-        driver.password = req.body.password;
-        driver.addressLine1 = req.body.addressLine1;
-        driver.addressLine2 = req.body.addressLine2;
-        driver.city = req.body.city;
-        driver.state = req.body.state;
-        driver.zip = req.body.zip;
-        driver.phoneNumber = req.body.phoneNumber;
+        var driver = new Driver(req.body);
+        /* Error Handle start */
+        CEC.throw_empty_request_body(res, req.body);
+        DriverEC.throw_missing_driver_attribute(res, req.body);
+        CEC.throw_id_provided(res, req.body);
+        DriverEC.throw_wrong_driver_attribute_type(res, req.body);
+        DriverEC.throw_invalid_driver_attribute_value(res, req.body);
+        DriverEC.throw_duplicate_driver_attribute_value(res, req.body, Driver);
+        DriverEC.throw_invalid_driver_attribute_key(res, req.body, Driver);
+        /* Error Handle end */
 
         driver.save(function(err){
             if(err){
@@ -99,7 +76,8 @@ router.route('/drivers/:driver_id')
     .get(function(req, res){
         Driver.findById(req.params.driver_id, function(err, driver){
             if(err){
-                res.status(500).send(err);
+                CEC.throw_id_not_found(res, err);
+                //res.status(500).send(err);
             }else{
                 res.json(driver);
             }
@@ -123,44 +101,14 @@ router.route('/drivers/:driver_id')
      * @throws Mongoose Database Error (500 Status Code)
      */
     .patch(function(req, res){
-        if(typeof req.body.firstName === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "firstName"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.lastName === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "lastName"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.username === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "username"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.emailAddress === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "emailAddress"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.password === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "password"), "statusCode" : "422"});
-            return;
-        }
-
         Driver.findById(req.params.driver_id, function(err, driver){
             if(err){
-                res.status(500).send(err);
+                //res.status(500).send(err);
+                CEC.throw_id_not_found(res, err);
             }else{
-                driver.firstName = req.body.firstName;
-                driver.lastName = req.body.lastName;
-                driver.dateOfBirth = req.body.dateOfBirth;
-                driver.licenseType = req.body.licenseType;
-                driver.username = req.body.username;
-                driver.emailAddress = req.body.emailAddress;
-                driver.password = req.body.password;
-                driver.addressLine1 = req.body.addressLine1;
-                driver.addressLine2 = req.body.addressLine2;
-                driver.city = req.body.city;
-                driver.state = req.body.state;
-                driver.zip = req.body.zip;
-                driver.phoneNumber = req.body.phoneNumber;
+                for (var attribute in req.body) {
+                    driver[attribute] = req.body[attribute];
+                }
 
                 driver.save(function(err){
                     if(err){
@@ -182,7 +130,8 @@ router.route('/drivers/:driver_id')
             _id : req.params.driver_id
         }, function(err, driver){
             if(err){
-                res.status(500).send(err);
+                //res.status(500).send(err);
+                CEC.throw_id_not_found(res, err);
             }else{
                 res.json({"message" : "Driver Deleted"});
             }
