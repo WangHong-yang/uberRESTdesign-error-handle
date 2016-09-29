@@ -15,7 +15,7 @@ To Run Tests:
 
 ### What is this repository for? ###
 
-* Quick summary: Code Example for APP Class
+* Quick summary: Code of Uber REST design with error handle 
+* Code based on: [Clark](https://github.com/clarkjeria)'s [Frame Code](https://bitbucket.org/appcmusv/transportation-express-api)
 * Version
 0.0.2
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)

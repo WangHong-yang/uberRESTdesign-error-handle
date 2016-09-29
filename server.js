@@ -1,6 +1,6 @@
 /** 
  * Example of RESTful API using Express and NodeJS
- * @author Clark Jeria
+ * @author Clark Jeria, Hubert Wang
  * @version 0.0.2
  */
 
@@ -15,7 +15,8 @@ app.use(bodyParser.json());
 var port = process.env.PORT || 8080;
 
 var mongoose    = require('mongoose');
-mongoose.connect('mongodb://app_user:password@ds035826.mlab.com:35826/cmu_sv_app');
+//mongoose.connect('mongodb://app_user:password@ds035826.mlab.com:35826/cmu_sv_app');
+mongoose.connect('mongodb://hubert:hubert@ds041536.mlab.com:41536/hubertwang');
 /** END: Express Server Configuration */
 
 /** BEGIN: Express Routes Definition */
@@ -23,12 +24,21 @@ var router = require('./routes/router');
 var cars = require('./routes/cars');
 var drivers = require('./routes/drivers');
 var passengers = require('./routes/passengers');
+var paymentAccounts = require('./routes/paymentaccounts')
 
 app.use('/api', cars);
 app.use('/api', drivers);
 app.use('/api', passengers);
+app.use('/api', paymentAccounts);
 app.use('/api', router);
 /** END: Express Routes Definition */
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
 
 /** BEGIN: Express Server Start */
 app.listen(port);
