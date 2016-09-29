@@ -6,6 +6,12 @@ To Setup the Environment for the first time:
 
 npm install
 ```
+To Run Codes:
+```
+#!javascript
+
+node server.js
+```
 To Run Tests:
 ```
 #!javascript
@@ -19,3 +25,5 @@ To Run Tests:
 * Code based on: [Clark](https://github.com/clarkjeria)'s [Frame Code](https://bitbucket.org/appcmusv/transportation-express-api)
 * Version
 0.0.2
+* Error Handling Functions are mainly in: **scripts** folder.
+* Check the [Detailed Error-Code Table](http://mr-why.com/post/studyabroad/uber-rest-error-handling)
