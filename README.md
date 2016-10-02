@@ -25,7 +25,7 @@ To Run Tests:
 * Code based on: [Clark](https://github.com/clarkjeria)'s [Frame Code](https://bitbucket.org/appcmusv/transportation-express-api)
 * Version
 0.0.2
-* Error Handling Functions are mainly in: **scripts** folder.
+* Error Handling Functions are in: **[scripts/errorHandling.js](https://github.com/WangHong-yang/uberRESTdesign-error-handle/blob/master/scripts/errorHandling.js)**
 
 ### The Detailed Error-Code Table
 
