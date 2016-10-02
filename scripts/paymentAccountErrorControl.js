@@ -83,9 +83,9 @@ function INVALID_PA_ATTRIBUTE_KEY(res, reqBody, Pa) {
 
 
 module.exports = {
-    throw_missing_pa_attribute: MISSING_pa_ATTRIBUTE,
-    throw_wrong_pa_attribute_type: WRONG_pa_ATTRIBUTE_TYPE,
-    throw_invalid_pa_attribute_value: INVALID_pa_ATTRIBUTE_VALUE,
-    throw_duplicate_pa_attribute_value: DUPLICATE_pa_ATTRIBUTE_VALUE,
-    throw_invalid_pa_attribute_key: INVALID_pa_ATTRIBUTE_KEY
+    throw_missing_pa_attribute: MISSING_PA_ATTRIBUTE,
+    throw_wrong_pa_attribute_type: WRONG_PA_ATTRIBUTE_TYPE,
+    throw_invalid_pa_attribute_value: INVALID_PA_ATTRIBUTE_VALUE,
+    throw_duplicate_pa_attribute_value: DUPLICATE_PA_ATTRIBUTE_VALUE,
+    throw_invalid_pa_attribute_key: INVALID_PA_ATTRIBUTE_KEY
 }

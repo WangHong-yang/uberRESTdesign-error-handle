@@ -8,14 +8,31 @@ var mongoose     = require('mongoose');
 var Schema       = mongoose.Schema;
 
 var CarSchema   = new Schema({
-    year: String,
-    maker: String,
-    model: String,
-    doorNum: String,
-    passNum: String,
-    license: String,
-    driverID: String,
-    insurance: String
+    driver: {
+        required: true,
+        type: Schema.Types.ObjectId, ref: 'Driver'
+    },
+    make: {
+        required: true,
+        type: String,
+        maxlength: 18
+    },
+    model: {
+        required: true,
+        type: String,
+        maxlength: 18
+    },
+    license: {
+        required: true,
+        type: String,
+        maxlength: 10
+    },
+    doorCount: {
+        required: true,
+        type: Number,
+        minlength: 1,
+        maxlength: 8
+    }
 });
 
 module.exports = mongoose.model('Car', CarSchema);
