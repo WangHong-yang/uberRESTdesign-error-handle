@@ -38,3 +38,8 @@ Error Code  | Error Message    | Relevant Resources  | Parameters
 1005 | invalid attribute value type | All Resources | None
 1006 | identifier not matching any resource instance | All Resources | None
 1007 | identifier should not provided when patching | All Resources | None
+
+### Unit Test Results
+
+All unit tests passed:
+![](https://ws3.sinaimg.cn/large/7359a3efgw1f8igvxfzykj21kw107ahn.jpg)
