@@ -38,7 +38,7 @@ var DriverSchema   = new Schema({
         required: true,
         type: String,
         hide: true,
-        minlength: 8,
+        minlength: 6,
         maxlength: 16
     },
     addressLine1: {
@@ -74,7 +74,7 @@ var DriverSchema   = new Schema({
     drivingLicense: {
         required: true,
         type: String,
-        minlength: 8,
+        minlength: 6,
         maxlength: 16
     },
     licensedState: {
@@ -85,6 +85,6 @@ var DriverSchema   = new Schema({
     }
 });
 
-DriverSchema.plugin(mongooseHidden);
+// DriverSchema.plugin(mongooseHidden);
 
 module.exports = mongoose.model('Driver', DriverSchema);

@@ -32,11 +32,11 @@ router.route('/drivers')
 
         driver.save(function(err){
             if(err){
-                res.send(err = EH.errorHandle(err));
+                res.status(400).send(err = EH.errorHandle(err));
                 return;
                 // res.status(500).send(err);
             }else{
-                res.status(201).json({"message" : "Driver Created", "driverCreated" : driver});
+                res.status(201).json(driver);
             }
         });
     });
@@ -54,12 +54,14 @@ router.route('/drivers/:driver_id')
     .get(function(req, res){
         Driver.findById(req.params.driver_id, function(err, driver){
             if(err){
-                // CEC.throw_id_not_found(res, err);
-                //res.status(500).send(err);
-                res.send(err = EH.errorHandle(err));
-                return;
+                res.status(404).send(err = EH.errorHandle(err));
             }else{
-                res.json(driver);
+                // if driver === null, err
+                if (driver === null) {
+                    res.status(404).end();
+                } else {
+                    res.json(driver);
+                }
             }
         });  
     })
@@ -95,16 +97,23 @@ router.route('/drivers/:driver_id')
      * @throws Mongoose Database Error (500 Status Code)
      */
     .delete(function(req, res){
-        Driver.remove({
-            _id : req.params.driver_id
-        }, function(err, driver){
-            if(err){
-                res.status(500).send(err);
-                //CEC.throw_id_not_found(res, err);
-            }else{
-                res.json({"message" : "Driver Deleted"});
+        // if driver id not found
+        Driver.findById(req.params.driver_id, function(err, driver){
+            if(err) {
+                res.status(404).send(err = EH.errorHandle(err)).end();
+            } else {
+                Driver.remove({
+                    _id : req.params.driver_id
+                }, function(err, driver){
+                    if(err){
+                        res.status(404).send(err = EH.errorHandle(err));
+                        //CEC.throw_id_not_found(res, err);
+                    }else{
+                        res.status(200).json({"message" : "Driver Deleted"});
+                    }
+                });
             }
-        });
+        })
     });
 
 module.exports = router;

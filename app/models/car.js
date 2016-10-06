@@ -9,7 +9,6 @@ var Schema       = mongoose.Schema;
 
 var CarSchema   = new Schema({
     driver: {
-        required: true,
         type: Schema.Types.ObjectId, ref: 'Driver'
     },
     make: {
@@ -30,8 +29,8 @@ var CarSchema   = new Schema({
     doorCount: {
         required: true,
         type: Number,
-        minlength: 1,
-        maxlength: 8
+        min: 1,
+        max: 8
     }
 });
 

@@ -11,7 +11,6 @@ var mongooseHidden = require('mongoose-hidden')();
 var PassengerSchema   = new Schema({
     firstName: {
         type: String,
-        required: true,
         minlength: 1,
         maxlength: 15
     },
@@ -32,7 +31,7 @@ var PassengerSchema   = new Schema({
         type: String,
         hide: true,
         required: true,
-        minlength: 8,
+        minlength: 6,
         maxlength: 16
     },
     addressLine1: {
@@ -67,6 +66,6 @@ var PassengerSchema   = new Schema({
     }
 });
 
-PassengerSchema.plugin(mongooseHidden);
+// PassengerSchema.plugin(mongooseHidden);
 
 module.exports = mongoose.model('Passenger', PassengerSchema);

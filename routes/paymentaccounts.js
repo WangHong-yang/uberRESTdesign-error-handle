@@ -1,146 +1,121 @@
 /** 
- * Express Route: /paymentaccounts
- * @author Clark Jeria
- * @version 0.0.3
+ * Express Route: /payments
+ * @author Clark Jeria, Hubert Wang
+ * @version 0.0.2
  */
 var express = require('express');
 var router = express.Router();
 
-var PaymentAccount = require('../app/models/paymentaccount');
-var CEC = require('../scripts/commonErrorControl')
-var PaEC = require('../scripts/paymentAccountErrorControl')
+var Pay = require('../app/models/paymentAccount');
+var EH = require('../scripts/errorHandling');
 
-router.route('/paymentaccounts') 
+router.route('/pays') 
     /**
-     * GET call for the paymentAccount entity (multiple).
-     * @returns {object} A list of paymentAccounts. (200 Status Code)
+     * GET call for the pay entity (multiple).
+     * @returns {object} A list of pays. (200 Status Code)
      * @throws Mongoose Database Error (500 Status Code)
      */
     .get(function(req, res){
-        PaymentAccount.find(function(err, paymentAccounts){
+        Pay.find(function(err, pays){
             if(err){
                 res.status(500).send(err);
             }else{
-                res.json(paymentAccounts);
+                res.json(pays);
             }
         });
     })
     /**
-     * POST call for the paymentAccount entity.
-     * @param {string} accountType - The account type of the new paymentAccount
-     * @param {integer} accountNumber - The account number of the new paymentAccount
-     * @param {date} expirationDate - The expiration date of the new paymentAccount
-     * @param {string} nameOnAccount - The name on account of the new paymentAccount
-     * @param {string} bank - The bank of the new paymentAccount
-     * @returns {object} A message and the paymentAccount created. (201 Status Code)
+     * POST call for the pay entity.
+     * @param {string} license - The license plate of the new pay
+     * @returns {object} A message and the pay created. (201 Status Code)
      * @throws Mongoose Database Error (500 Status Code)
      */
     .post(function(req, res){
-        var paymentAccount = new PaymentAccount(req.body);
-        /* Error Handle start */
-        CEC.throw_empty_request_body(res, req.body);
-        PaEC.throw_missing_pa_attribute(res, req.body);
-        CEC.throw_id_provided(res, req.body);
-        PaEC.throw_wrong_pa_attribute_type(res, req.body);
-        PaEC.throw_invalid_pa_attribute_value(res, req.body);
-        PaEC.throw_duplicate_pa_attribute_value(res, req.body, PaymentAccount);
-        PaEC.throw_invalid_pa_attribute_key(res, req.body, PaymentAccount);
-        /* Error Handle end */
-
-        paymentAccount.save(function(err){
+        var pay = new Pay(req.body);
+        pay.save(function(err){
             if(err){
-                res.status(500).send(err);
+                //res.status(500).send(err);
+                res.status(400).send(err = EH.errorHandle(err));
             }else{
-                res.status(201).json({"message" : "PaymentAccount Created", "paymentAccountCreated" : paymentAccount});
+                //res.status(201).json({"message" : "pay Created", "pay_created" : pay});
+                res.status(201).json(pay);
             }
         });
     });
 
 /** 
- * Express Route: /paymentaccounts/:paymentaccount_id
- * @param {string} paymentaccount_id - Id Hash of PaymentAccount Object
+ * Express Route: /pays/:pay_id
+ * @param {string} pay_id - Id Hash of pay Object
  */
-router.route('/paymentaccounts/:paymentaccount_id')
+router.route('/pays/:pay_id')
     /**
-     * GET call for the paymentAccount entity (single).
-     * @returns {object} the paymentaccount with Id paymentaccount_id. (200 Status Code)
+     * GET call for the pay entity (single).
+     * @returns {object} the pay with Id pay_id. (200 Status Code)
      * @throws Mongoose Database Error (500 Status Code)
      */
     .get(function(req, res){
-        PaymentAccount.findById(req.params.paymentaccount_id, function(err, paymentAccount){
+        Pay.findById(req.params.pay_id, function(err, pay){
             if(err){
-                res.status(500).send(err);
+                res.status(404).send(err = EH.errorHandle(err)).end();
             }else{
-                res.json(paymentAccount);
+                // if pay === null, err
+                if(pay === null) {
+                    res.status(404).end();
+                } else {
+                    res.json(pay);  
+                }
             }
         });  
     })
     /**
-     * PATCH call for the paymentAccount entity (single).
-     * @param {string} accountType - The account type of the new paymentAccount
-     * @param {integer} accountNumber - The account number of the new paymentAccount
-     * @param {date} expirationDate - The expiration date of the new paymentAccount
-     * @param {string} nameOnAccount - The name on account of the new paymentAccount
-     * @param {string} bank - The bank of the new paymentAccount
-     * @returns {object} A message and the paymentAccount created. (201 Status Code)
-     * @returns {object} A message and the paymentaccount updated. (200 Status Code)
+     * PATCH call for the pay entity (single).
+     * @returns {object} A message and the pay updated. (200 Status Code)
      * @throws Mongoose Database Error (500 Status Code)
      */
     .patch(function(req, res){
-        if(typeof req.body.accountType === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "accountType"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.accountNumber === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "accountNumber"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.expirationDate === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "expirationDate"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.nameOnAccount === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "nameOnAccount"), "statusCode" : "422"});
-            return;
-        }
-        if(typeof req.body.bank === 'undefined'){
-            res.status(422).json({"errorCode": "1002", "errorMessage" : util.format("Missing required parameter %s", "bank"), "statusCode" : "422"});
-            return;
-        }
-
-        PaymentAccount.findById(req.params.paymentaccount_id, function(err, paymentAccount){
+        Pay.findById(req.params.pay_id, function(err, pay){
+            //CEC.throw_id_provided(res, req.body);
             if(err){
-                res.status(500).send(err);
+                res.send(err = EH.errorHandle(err));
+                return;
+                //res.status(500).send(err);
             }else{
-                paymentAccount.accountType = req.body.accountType;
-                paymentAccount.accountNumber = req.body.accountNumber;
-                paymentAccount.expirationDate = req.body.expirationDate;
-                paymentAccount.nameOnAccount = req.body.nameOnAccount;
-                paymentAccount.bank = req.body.bank;
-
-                paymentaccount.save(function(err){
+                for (var attribute in req.body) {
+                    pay[attribute] = req.body[attribute];
+                }
+                pay.save(function(err){
                     if(err){
-                        res.status(500).send(err);
+                        res.send(err = EH.errorHandle(err));
+                        return;
+                        //res.status(500).send(err);
                     }else{
-                        res.json({"message" : "PaymentAccount Updated", "paymentAccountUpdated" : paymentAccount});
+                        res.json({"message" : "pay Updated", "pay_created" : pay});
                     }
                 });
             }
         });
     })
     /**
-     * DELETE call for the paymentaccount entity (single).
+     * DELETE call for the pay entity (single).
      * @returns {object} A string message. (200 Status Code)
      * @throws Mongoose Database Error (500 Status Code)
      */
     .delete(function(req, res){
-        PaymentAccount.remove({
-            _id : req.params.paymentaccount_id
-        }, function(err, paymentaccount){
+        // if pay id not found
+        Pay.findById(req.params.pay_id, function(err, pay){
             if(err){
-                res.status(500).send(err);
-            }else{
-                res.json({"message" : "PaymentAccount Deleted"});
+                res.status(404).send(err = EH.errorHandle(err)).end();
+            } else {
+                Pay.remove({
+                    _id : req.params.pay_id
+                }, function(err, pay){
+                    if(err){
+                        res.status(404).send(err = EH.errorHandle(err));
+                        //CEC.throw_id_not_found(res, err);
+                    }else{
+                        res.status(200).json({"message" : "pay Deleted"});
+                    }
+                });
             }
         });
     });

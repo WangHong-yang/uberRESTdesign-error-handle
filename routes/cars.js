@@ -34,22 +34,13 @@ router.route('/cars')
      */
     .post(function(req, res){
         var car = new Car(req.body);
-        /* Error Handle start */
-        // CEC.throw_empty_request_body(res, req.body);
-        // CarEC.throw_missing_car_attribute(res, req.body);
-        // CEC.throw_id_provided(res, req.body);
-        // CarEC.throw_wrong_car_attribute_type(res, req.body);
-        // CarEC.throw_invalid_car_attribute_value(res, req.body);
-        // CarEC.throw_duplicate_car_attribute_value(res, req.body, Car);
-        // CarEC.throw_invalid_car_attribute_key(res, req.body, Car);
-        /* Error Handle end */
         car.save(function(err){
             if(err){
                 //res.status(500).send(err);
-                res.send(err = EH.errorHandle(err));
-                return;
+                res.status(400).send(err = EH.errorHandle(err));
             }else{
-                res.status(201).json({"message" : "Car Created", "car_created" : car});
+                //res.status(201).json({"message" : "Car Created", "car_created" : car});
+                res.status(201).json(car);
             }
         });
     });
@@ -67,12 +58,14 @@ router.route('/cars/:car_id')
     .get(function(req, res){
         Car.findById(req.params.car_id, function(err, car){
             if(err){
-                //res.status(500).send(err);
-                // CEC.throw_id_not_found(res, err);
-                res.send(err = EH.errorHandle(err));
-                return;
+                res.status(404).send(err = EH.errorHandle(err)).end();
             }else{
-                res.json(car);
+                // if car === null, err
+                if(car === null) {
+                    res.status(404).end();
+                } else {
+                    res.json(car);  
+                }
             }
         });  
     })
@@ -112,14 +105,21 @@ router.route('/cars/:car_id')
      * @throws Mongoose Database Error (500 Status Code)
      */
     .delete(function(req, res){
-        Car.remove({
-            _id : req.params.car_id
-        }, function(err, car){
+        // if car id not found
+        Car.findById(req.params.car_id, function(err, car){
             if(err){
-                res.status(500).send(err);
-                //CEC.throw_id_not_found(res, err);
-            }else{
-                res.json({"message" : "Car Deleted"});
+                res.status(404).send(err = EH.errorHandle(err)).end();
+            } else {
+                Car.remove({
+                    _id : req.params.car_id
+                }, function(err, car){
+                    if(err){
+                        res.status(404).send(err = EH.errorHandle(err));
+                        //CEC.throw_id_not_found(res, err);
+                    }else{
+                        res.status(200).json({"message" : "Car Deleted"});
+                    }
+                });
             }
         });
     });

@@ -57,7 +57,7 @@ function errorHandle(err) {
         var newMsg = {
             "errorCode": 1006, // identifier not matching any resource instance
             "errorMsg": err.message,
-            "statusCode": 400,
+            "statusCode": 404,
             "statusTxt": "Bad Request"
         };
         errMsgs.push(newMsg);
