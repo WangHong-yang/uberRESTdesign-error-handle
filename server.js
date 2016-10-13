@@ -8,6 +8,8 @@
 var express    = require('express');
 var app        = express();
 var bodyParser = require('body-parser');
+var CryptoJS   = require("crypto-js");
+var base64     = require("js-base64").Base64;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -24,22 +26,80 @@ var router = require('./routes/router');
 var cars = require('./routes/cars');
 var drivers = require('./routes/drivers');
 var passengers = require('./routes/passengers');
-var paymentAccounts = require('./routes/paymentaccounts')
+var paymentAccounts = require('./routes/paymentaccounts');
+var sessions = require('./routes/sessions');
+/** END: Express Routes Definition */
 
+// catch 404 and forward to error handler
+// app.use(function(req, res, next) {  
+//   // err
+//   var err = new Error('Not Found');
+//   err.status = 404;
+//   next(err);
+//   return;
+// });
+
+// decryption
+app.use(function (req, res, next) {
+    headers = req.headers;
+
+    if (req.url != '/api/sessions') {
+        if (headers.token === undefined) {
+            res.status(404).json({
+                'errorCode': '1012',
+                'errorMessage': 'Missing token',
+                'statusCode': '404'
+            });
+            return;
+        } else {
+            cryptedHash = base64.decode(headers.token);
+            uncryptedHash = CryptoJS.AES.decrypt(cryptedHash, "Secret").toString(CryptoJS.enc.Utf8);
+
+            try {
+                username = uncryptedHash.split(':')[0];
+                expiration = uncryptedHash.split(':')[1];
+                clearString = username+":"+expiration;
+                HashedClearString = uncryptedHash.split(':')[2];
+
+                reHashedClearString = CryptoJS.HmacSHA1(clearString, "APP");
+                if (HashedClearString != reHashedClearString) {
+                    res.status(404).json({
+                        'errorCode': '1012',
+                        'errorMessage': 'Invalid Token',
+                        'statusCode': '404'
+                    });
+                    return;
+                } 
+            } catch (error) {
+                res.status(404).json({ 'errorCode': '1013', 'errorMessage': 'Invalid Token', 'statusCode': '404' });
+                return;
+            }
+            if (expiration < parseInt(Date.now()/1000)) {
+                res.status(404).json({ 'errorCode': '1014', 'errorMessage': 'Expired Token', 'statusCode': '404' });
+                return;
+            } else {
+                console.log("decrypt success!");
+            }
+        }
+    }
+    next();
+});
+
+app.use('/api', sessions);
 app.use('/api', cars);
 app.use('/api', drivers);
 app.use('/api', passengers);
 app.use('/api', paymentAccounts);
 app.use('/api', router);
-/** END: Express Routes Definition */
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-  return;
-});
+// app.use(function(req, res, next) {  
+//   // err
+//   var err = new Error('Not Found');
+//   err.status = 404;
+//   next(err);
+//   return;
+// });
 
 /** BEGIN: Express Server Start */
 app.listen(port);
