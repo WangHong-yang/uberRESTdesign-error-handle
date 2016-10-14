@@ -7,40 +7,61 @@
 var mongoose     = require('mongoose');
 var Schema       = mongoose.Schema;
 
+/**
+ * - passenger (reference)
+ * - driver (reference)
+ * - car (reference)
+ * - rideType (String, [ECONOMY, PREMIUM, EXECUTIVE], Required)
+ * - startPoint  Object (lat: Decimal, long: Decimal) (latitude/longitude combination, Required)
+ * - endPoint Object (lat: Decimal, long: Decimal) (latitude/longitude combination, Required)
+ * - requestTime (Number, TimeStamp, Required)
+ * - pickupTime (Number, TimeStamp, Required)
+ * - dropOffTime (Number, TimeStamp, Required)
+ * - status (String, [REQUESTED, AWAITING_DRIVER, DRIVE_ASSIGNED, IN_PROGRESS, ARRIVED, CLOSED], Required)
+ * - fare (Number)
+ * - route (series of latitude/longitude values)
+ */
 var RideSchema   = new Schema({
     passenger: {
-        type: String,
-        refer: 'Passenger',
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: 'Passenger',
     },
     driver: {
-        type: String,
-        refer: 'Driver',
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: 'Driver',
     },
     car: {
-        type: String,
-        refer: 'Car',
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: 'Car',
     },
     rideType: {
         type: String,
         required: true,
-        validate: [{
-            validator: function (val) {
-                return val === 'ECONOMY' || val === 'PREMIUM' || val === 'EXECUTIVE';
-            },
-            msg: 'only ECONOMY / PREMIUM / EXECUTIVE available',
-            type: 'notvalid'
-        }]
+        enum:[
+         'ECONOMY', 
+         'PREMIUM', 
+         'EXECUTIVE'
+        ]
     },
     startPoint: {
-        type: Schema.Types.Mixed,
-        required: true
+        lat: {
+            type: Number,
+            required:true
+        },
+        long:{
+            type: Number,
+            required:true
+        }
     }, 
     endPoint: {
-        type: Schema.Types.Mixed,
-        required: true
+        lat:{
+            type: Number,
+            required:true
+        },
+        long:{
+            type: Number,
+            required:true
+        }
     },
     requestTime: {
         type: Number,
@@ -57,17 +78,22 @@ var RideSchema   = new Schema({
     status: {
         type: String,
         required: true,
-        validate: [{
-            validator: function (val) {
-                const validVal = ['REQUESTED', 'AWAITING_DRIVER', 'DRIVE_ASSIGNED', 'IN_PROGRESS', 'ARRIVED', 'CLOSED'];
-                return validVal.indexOf(val) >= 0;
-            },
-            msg: 'invaild ride status, you can only choose REQUESTED, AWAITING_DRIVER, DRIVE_ASSIGNED, IN_PROGRESS, ARRIVED, CLOSED',
-            type: 'notvalid'
-        }]
+        enum:[
+         'REQUESTED', 
+         'AWAITING_DRIVER', 
+         'DRIVER_ASSIGNED',
+         'IN_PROGRESS',
+         'ARRIVED',
+         'CLOSED'
+        ]
     },
-    fare: Number,
-    route: [{lat: Number, long: Number}]
+    fare: {
+        type: Number, 
+        required:true
+    },
+    route: {
+        points:[{}]
+    }
 });
 
 module.exports = mongoose.model('Ride', RideSchema);

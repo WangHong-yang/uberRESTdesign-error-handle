@@ -17,7 +17,6 @@ app.use(bodyParser.json());
 var port = process.env.PORT || 8080;
 
 var mongoose    = require('mongoose');
-//mongoose.connect('mongodb://app_user:password@ds035826.mlab.com:35826/cmu_sv_app');
 mongoose.connect('mongodb://hubert:hubert@ds041536.mlab.com:41536/hubertwang');
 /** END: Express Server Configuration */
 
@@ -26,18 +25,10 @@ var router = require('./routes/router');
 var cars = require('./routes/cars');
 var drivers = require('./routes/drivers');
 var passengers = require('./routes/passengers');
+var rides = require('./routes/rides');
 var paymentAccounts = require('./routes/paymentaccounts');
 var sessions = require('./routes/sessions');
 /** END: Express Routes Definition */
-
-// catch 404 and forward to error handler
-// app.use(function(req, res, next) {  
-//   // err
-//   var err = new Error('Not Found');
-//   err.status = 404;
-//   next(err);
-//   return;
-// });
 
 // decryption
 app.use(function (req, res, next) {
@@ -89,17 +80,9 @@ app.use('/api', sessions);
 app.use('/api', cars);
 app.use('/api', drivers);
 app.use('/api', passengers);
+app.use('/api', rides);
 app.use('/api', paymentAccounts);
 app.use('/api', router);
-
-// catch 404 and forward to error handler
-// app.use(function(req, res, next) {  
-//   // err
-//   var err = new Error('Not Found');
-//   err.status = 404;
-//   next(err);
-//   return;
-// });
 
 /** BEGIN: Express Server Start */
 app.listen(port);
