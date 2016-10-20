@@ -1,7 +1,16 @@
 /** 
  * Mongoose Schema for the Entity PaymentAccount
- * @author Clark Jeria
+ * @author Clark Jeria, Hubert Wang
  * @version 0.0.1
+ */
+
+/**
+ * Parameters constraints
+ * - accountType (String, 18, Required)
+ * - accountNumber (Number, 18, Required)
+ * - expirationDate (Number, Timestamp, Required for passenger accounts only)
+ * - nameOnAccount (String, 18, Required)
+ * - bank (String, 18, Required for driver accounts only)
  */
 
 var mongoose     = require('mongoose');

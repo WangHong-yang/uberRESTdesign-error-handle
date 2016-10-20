@@ -26,18 +26,19 @@ router.route('/pays')
     })
     /**
      * POST call for the pay entity.
-     * @param {string} license - The license plate of the new pay
+     * @param {String} accountType - the card account type
+     * @param {Number} accountNumber - the card account Number
+     * @param {String} nameOnAccount - name on the card
+     * @param {Number} bank - bank number
      * @returns {object} A message and the pay created. (201 Status Code)
-     * @throws Mongoose Database Error (500 Status Code)
+     * @throws Bad Request Error (400 Status Code)
      */
     .post(function(req, res){
         var pay = new Pay(req.body);
         pay.save(function(err){
             if(err){
-                //res.status(500).send(err);
                 res.status(400).send(err = EH.errorHandle(err));
             }else{
-                //res.status(201).json({"message" : "pay Created", "pay_created" : pay});
                 res.status(201).json(pay);
             }
         });
@@ -69,16 +70,18 @@ router.route('/pays/:pay_id')
     })
     /**
      * PATCH call for the pay entity (single).
+     * @param {String} accountType - the card account type
+     * @param {Number} accountNumber - the card account Number
+     * @param {String} nameOnAccount - name on the card
+     * @param {Number} bank - bank number
      * @returns {object} A message and the pay updated. (200 Status Code)
-     * @throws Mongoose Database Error (500 Status Code)
+     * @throws Bad Request Error (400 Status Code)
      */
     .patch(function(req, res){
         Pay.findById(req.params.pay_id, function(err, pay){
-            //CEC.throw_id_provided(res, req.body);
             if(err){
                 res.send(err = EH.errorHandle(err));
                 return;
-                //res.status(500).send(err);
             }else{
                 for (var attribute in req.body) {
                     pay[attribute] = req.body[attribute];
@@ -87,7 +90,6 @@ router.route('/pays/:pay_id')
                     if(err){
                         res.send(err = EH.errorHandle(err));
                         return;
-                        //res.status(500).send(err);
                     }else{
                         res.json({"message" : "pay Updated", "pay_created" : pay});
                     }
@@ -111,7 +113,6 @@ router.route('/pays/:pay_id')
                 }, function(err, pay){
                     if(err){
                         res.status(404).send(err = EH.errorHandle(err));
-                        //CEC.throw_id_not_found(res, err);
                     }else{
                         res.status(200).json({"message" : "pay Deleted"});
                     }

@@ -31,35 +31,27 @@ router.route('/rides')
     })
     /**
      * POST call for the ride entity.
-     * @param {string} license - The license plate of the new ride
-     * @param {integer} doorCount - The amount of doors of the new ride
-     * @param {string} make - The make of the new ride
-     * @param {string} model - The model of the new ride
-     * @returns {object} A message and the ride created. (201 Status Code)
-     * @throws Mongoose Database Error (500 Status Code)
+     * @param {reference} passenger - reference to passenger
+     * @param {reference} driver - reference to driver
+     * @param {reference} car - reference to car
+     * @param {String} rideType - ride type, select from ['ECONOMY', 'PREMIUM', 'EXECUTIVE']
+     * @param {Number} startPoint {lat, long} - ride start point latitude and longitude
+     * @param {Number} endPoint {lat, long} - ride end point latitude and longitude
+     * @param {Number} requestTime - the time of passenger request ride
+     * @param {Number} pickupTime - the time of driver pick up passenger
+     * @param {Number} dropOffTime - the time of driver drop off passenger
+     * @param {String} status - the status of current ride, select from ['REQUESTED', 'AWAITING_DRIVER', 'DRIVER_ASSIGNED', 'IN_PROGRESS', 'ARRIVED', 'CLOSED']
+     * @param {Number} fare - fare of this trip
+     * @returns {} A message and the ride created. (201 Status Code)
+     * @throws bad request Error (400 Status Code)
      */
     .post(function(req, res){
         var ride = new Ride(req.body);
-        // ride.rideType = req.body.rideType;
-        // ride.startPoint.lat = req.body.startPoint.lat;
-        // ride.startPoint.long = req.body.startPoint.long;
-        // ride.endPoint.lat = req.body.endPoint.lat;
-        // ride.endPoint.long = req.body.endPoint.long;
-        // ride.requestTime = req.body.requestTime;
-        // ride.pickupTime = req.body.pickupTime;
-        // ride.dropoffTime = req.body.dropoffTime;
-        // ride.status = req.body.status;
-        // ride.fare = req.body.fare;
-        // ride.driver = mongoose.Types.ObjectId(req.body.driver);
-        // ride.passenger = mongoose.Types.ObjectId(req.body.passenger);
-        // ride.car = mongoose.Types.ObjectId(req.body.car);
 
         ride.save(function(err){
             if(err){
-                //res.status(500).send(err);
                 res.status(400).send(err = EH.errorHandle(err));
             }else{
-                //res.status(201).json({"message" : "ride Created", "ride_created" : ride});
                 res.status(201).json(ride);
             }
         });
@@ -73,7 +65,7 @@ router.route('/rides/:ride_id')
     /**
      * GET call for the ride entity (single).
      * @returns {object} the ride with Id ride_id. (200 Status Code)
-     * @throws Mongoose Database Error (500 Status Code)
+     * @throws bad request Error (404 Status Code)
      */
     .get(function(req, res){
         Ride.findById(req.params.ride_id, function(err, ride){
@@ -91,10 +83,17 @@ router.route('/rides/:ride_id')
     })
     /**
      * PATCH call for the ride entity (single).
-     * @param {string} license - The license plate of the new ride
-     * @param {integer} doorCount - The amount of doors of the new ride
-     * @param {string} make - The make of the new ride
-     * @param {string} model - The model of the new ride
+     * @param {reference} passenger - reference to passenger
+     * @param {reference} driver - reference to driver
+     * @param {reference} car - reference to car
+     * @param {String} rideType - ride type, select from ['ECONOMY', 'PREMIUM', 'EXECUTIVE']
+     * @param {Number} startPoint {lat, long} - ride start point latitude and longitude
+     * @param {Number} endPoint {lat, long} - ride end point latitude and longitude
+     * @param {Number} requestTime - the time of passenger request ride
+     * @param {Number} pickupTime - the time of driver pick up passenger
+     * @param {Number} dropOffTime - the time of driver drop off passenger
+     * @param {String} status - the status of current ride, select from ['REQUESTED', 'AWAITING_DRIVER', 'DRIVER_ASSIGNED', 'IN_PROGRESS', 'ARRIVED', 'CLOSED']
+     * @param {Number} fare - fare of this trip
      * @returns {object} A message and the ride updated. (200 Status Code)
      * @throws Mongoose Database Error (500 Status Code)
      */
@@ -111,7 +110,6 @@ router.route('/rides/:ride_id')
                     if(err){
                         res.send(err = EH.errorHandle(err));
                         return;
-                        //res.status(500).send(err);
                     }else{
                         res.json({"message" : "ride Updated", "ride_created" : ride});
                     }
@@ -122,7 +120,7 @@ router.route('/rides/:ride_id')
     /**
      * DELETE call for the ride entity (single).
      * @returns {object} A string message. (200 Status Code)
-     * @throws Mongoose Database Error (500 Status Code)
+     * @throws Bad Request Error (404 Status Code)
      */
     .delete(function(req, res){
         // if ride id not found
@@ -135,7 +133,6 @@ router.route('/rides/:ride_id')
                 }, function(err, ride){
                     if(err){
                         res.status(404).send(err = EH.errorHandle(err));
-                        //CEC.throw_id_not_found(res, err);
                     }else{
                         res.status(200).json({"message" : "ride Deleted"});
                     }
@@ -144,17 +141,15 @@ router.route('/rides/:ride_id')
         });
     });
 
-/**
- * Here you must add the routes for the Ride entity
- * /rides/:id/routePoints (POST)
- * /rides/:id/routePoints (GET)
- * /rides/:id/routePoint/current (GET)
+/** 
+ * Express Route: /rides/:id/routePoints 
+ * @param {string} ride_id - Id Hash of Ride Object
  */
 router.route('/rides/:ride_id/routePoints')
     /**
-     * GET call for the ride entity (single).
+     * GET call for the ride route point in ride entity.
      * @returns {object} the ride with Id ride_id. (200 Status Code)
-     * @throws Mongoose Database Error (500 Status Code)
+     * @throws Bad Request Error (404 Status Code)
      */
     .get(function(req, res){
         /**
@@ -168,6 +163,13 @@ router.route('/rides/:ride_id/routePoints')
             }
         });
     })
+    /**
+     * POST call for the ride route points.
+     * @param {Number} lat - the latitude of route point
+     * @param {Number} long - the longtitude of route point
+     * @returns {} A message and the ride point created. (201 Status Code)
+     * @throws bad request Error (404 Status Code)
+     */
     .post(function(req, res){
         Ride.findById(req.params.ride_id, function(err, ride){
             // find corresonding resource first
@@ -187,11 +189,15 @@ router.route('/rides/:ride_id/routePoints')
         });
     });
 
+/** 
+ * Express Route: /rides/:id/routePoint/current
+ * @param {string} ride_id - Id Hash of Ride Object
+ */
 router.route('/rides/:ride_id/routePoints/current')
     /**
-     * GET call for the ride entity (single).
+     * GET call for the current route point in ride entity.
      * @returns {object} the ride with Id ride_id. (200 Status Code)
-     * @throws Mongoose Database Error (500 Status Code)
+     * @throws Bad Request Error (404 Status Code)
      */
     .get(function(req, res){
         Ride.findById(req.params.ride_id, function(err, ride){

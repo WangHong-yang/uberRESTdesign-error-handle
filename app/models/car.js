@@ -4,6 +4,15 @@
  * @version 0.0.2
  */
 
+/**
+ * Parameters constraints
+ * - driver (reference, Required)
+ * - make (String, 18, Required)
+ * - model (Sring, 18, Required)
+ * - license (String, 10, Required)
+ * - doorCount (Number 1-8, Required)
+ */
+
 var mongoose     = require('mongoose');
 var Schema       = mongoose.Schema;
 

@@ -26,13 +26,17 @@ router.route('/passengers')
     })
     /**
      * POST call for the passenger entity.
+     * @param {String} emailAddress - email address of passenger, contain format checking: example@xxx.com
+     * @param {String} password - password of passenger, hidden using mongooseHidden
+     * @param {string} phoneNumber - phone number of passenger, contain format checking: xxx-xxx-xxxx
+     * @returns {} A message and the passenger created. (201 Status Code)
+     * @throws Bad Request Error (400 status code)
      */
     .post(function(req, res){
         var passenger = new Passenger(req.body);
 
         passenger.save(function(err){
             if(err){
-                // res.status(500).send(err);
                 res.status(400).send(err = EH.errorHandle(err));
                 return;
             }else{
@@ -49,13 +53,12 @@ router.route('/passengers/:passenger_id')
     /**
      * GET call for the passenger entity (single).
      * @returns {object} the passenger with Id passenger_id. (200 Status Code)
-     * @throws Mongoose Database Error (500 Status Code)
+     * @throws Bad Request Error (404 Status Code)
      */
     .get(function(req, res){
         Passenger.findById(req.params.passenger_id, function(err, passenger){
             if(err){
                 res.status(404).send(err = EH.errorHandle(err));
-                //res.status(500).send(err);
             }else{
                 // if passenger == null, err
                 if(passenger === null) {
@@ -68,13 +71,17 @@ router.route('/passengers/:passenger_id')
     })
     /**
      * PATCH call for the passenger entity (single).
+     * @param {String} emailAddress - email address of passenger, contain format checking: example@xxx.com
+     * @param {String} password - password of passenger, hidden using mongooseHidden
+     * @param {string} phoneNumber - phone number of passenger, contain format checking: xxx-xxx-xxxx
+     * @returns {Object} A message and the passenger created. (201 Status Code)
+     * @throws Bad Request Error (400 status code)
      */
     .patch(function(req, res){
         Passenger.findById(req.params.passenger_id, function(err, passenger){
             if(err){
                 res.send(err = EH.errorHandle(err));
                 return;
-                //res.status(500).send(err);
             }else{
                 for (var attribute in req.body) {
                     passenger[attribute] = req.body[attribute];
@@ -82,7 +89,6 @@ router.route('/passengers/:passenger_id')
 
                 passenger.save(function(err){
                     if(err){
-                        // res.status(500).send(err);
                         res.send(err = EH.errorHandle(err));
                         return;
                     }else{
@@ -95,7 +101,7 @@ router.route('/passengers/:passenger_id')
     /**
      * DELETE call for the passenger entity (single).
      * @returns {object} A string message. (200 Status Code)
-     * @throws Mongoose Database Error (500 Status Code)
+     * @throws Bad Request Error (404 Status Code)
      */
     .delete(function(req, res){
         Passenger.findById(req.params.passenger_id, function(err, passenger){
@@ -107,7 +113,6 @@ router.route('/passengers/:passenger_id')
                 }, function(err, passenger){
                     if(err){
                         res.status(404).send(err);
-                        //CEC.throw_id_not_found(res, err);
                     }else{
                         res.status(200).json({"message" : "Passenger Deleted"});
                     }

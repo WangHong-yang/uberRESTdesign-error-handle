@@ -1,7 +1,21 @@
 /** 
  * Mongoose Schema for the Entity Passenger
- * @author Clark Jeria
+ * @author Clark Jeria, Hubert Wang
  * @version 0.0.3
+ */
+
+/**
+ * Parameters constraints
+ * firstName (String, 1-15)
+ * lastName (String, 1-15)
+ * emailAddress (Reegex /[a-zA-Z0-9_.]+\@[a-zA-Z](([a-zA-Z0-9-]+).)*\/ , Required)
+ * password (Used for POST only, String, 8-16, Required - No constraints, Store clear text)
+ * addressLine1 (String, 50)
+ * addressLine2 (String, 50)
+ * city (String, 50)
+ * state (String, 2)
+ * zip (String, 5)
+ * phoneNumber (String, Regex XXX-XXX-XXXX, Required)
  */
 
 var mongoose     = require('mongoose');
@@ -66,6 +80,7 @@ var PassengerSchema   = new Schema({
     }
 });
 
-// PassengerSchema.plugin(mongooseHidden);
+// use mongooseHidden to hide password when return
+PassengerSchema.plugin(mongooseHidden);
 
 module.exports = mongoose.model('Passenger', PassengerSchema);
